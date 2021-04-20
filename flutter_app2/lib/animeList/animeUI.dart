@@ -1,13 +1,16 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_app2/anime/anime.dart';
 import 'package:flutter_app2/animeList/detailPage.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-
 class AnimeUI extends StatefulWidget {
   final Anime anime;
-  AnimeUI(this.anime,this.needLoading);
+
+  AnimeUI(this.anime, this.needLoading);
 
   bool needLoading;
 
@@ -16,46 +19,111 @@ class AnimeUI extends StatefulWidget {
 }
 
 class _AnimeUIState extends State<AnimeUI> {
+  Widget nsfwWidget;
+
+  Widget _addEpisodeWidget = Container();
+
+  Widget _addEpisodeWidgetOn = Container(
+    padding: EdgeInsets.all(10),
+    decoration: BoxDecoration(
+        color: Colors.white70,
+        borderRadius: BorderRadius.circular(50)
+    ),
+    child: Text(
+      "+1",
+      style: TextStyle(
+          fontSize: 25
+      ),
+    ),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.anime.nsfw) {
+      nsfwWidget = Align(
+        alignment: Alignment.bottomRight,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+          margin: EdgeInsets.all(3),
+          decoration: BoxDecoration(
+              color: Color.fromRGBO(200, 10, 10, 1),
+              borderRadius: BorderRadius.circular(5)),
+          child: Text(
+            "nsfw",
+            style: TextStyle(fontSize: 12),
+          ),
+        ),
+      );
+    } else {
+      nsfwWidget = Container();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return  Container(
-      margin: EdgeInsets.only(bottom: 3, right: 3, left: 3, top: 3),
-      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      width: 100,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(widget.anime.mainImage.medium),
-          fit: BoxFit.cover
-        ),
-        borderRadius: BorderRadius.all(Radius.circular(5)),
-        color: Colors.white30,
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: () => showCupertinoModalBottomSheet(
-          expand: true,
+    return GestureDetector(
+      onTap: () =>
+          showCupertinoModalBottomSheet(
+              expand: true,
               context: context,
-                bounce: true,
-                builder: (context) => PageAnimeDetail(widget.anime,widget.needLoading)
-            ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.black,
+              bounce: true,
+              builder: (context) =>
+                  PageAnimeDetail(widget.anime, widget.needLoading)),
+      onDoubleTap: () {
+        setState(() {
+          _addEpisodeWidget = _addEpisodeWidgetOn;
+        });
+        Future.delayed(Duration(milliseconds: 400)).then((value) {
+          setState(() {
+            _addEpisodeWidget = Container();
+          });
+        });
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 3, right: 3, left: 3, top: 3),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: Column(
+            children: [
+              AspectRatio(
+                aspectRatio: 10 / 14.10,
+                child: Container(
+                  child: Center(
+                      child: _addEpisodeWidget
+                  ),
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          widget.anime.mainImage.medium,
+                        ),
+                        fit: BoxFit.cover,
+                      )
+                  ),
+                ),
               ),
-            ),
-          ],
+              SizedBox(
+                height: 5,
+                child: Container(color: Colors.green),
+              ),
+              SizedBox(
+                width: double.infinity,
+                height: 20,
+                child: Container(
+                  padding: EdgeInsets.all(3),
+                  color: Colors.black,
+                  child: Text(
+                    widget.anime.title,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 11, color: Color.fromRGBO(217, 217, 217, 1)),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-

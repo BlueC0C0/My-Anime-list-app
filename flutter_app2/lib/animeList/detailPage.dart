@@ -8,6 +8,7 @@ import 'package:flutter_app2/animeList/animeListRequests.dart';
 import 'package:flutter_app2/token/authentication.dart';
 import 'package:flutter_app2/token/token.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'animeUI.dart';
 import 'dart:math';
 
@@ -24,6 +25,8 @@ class PageAnimeDetail extends StatefulWidget {
 class _PageAnimeDetailState extends State<PageAnimeDetail> {
   Widget recommandations;
   Widget related_animes;
+  Widget details;
+  Widget actions;
   Widget _mainPage;
   NetworkImage _mainPicture;
 
@@ -35,6 +38,7 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   _PageAnimeDetailState();
 
 
+
   @override
   void initState(){
     super.initState();
@@ -42,29 +46,23 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
     related_animes = _loadingPage;
     _mainPage = _loadingPage;
     _mainPicture = NetworkImage(widget.anime.mainImage.medium);
-
     chargerPage();
   }
 
   Future<void> chargerPage() async {
-    AnimeList _request = new AnimeList();
-    if(widget.needLoading){
-      dynamic json = await _request.chargerAnimeDetail(Authentication.getSingleton().token,widget.anime.id);
-      widget.anime = Anime.fromJson(json);
-      widget.anime.completeInformations(json);
-    }
-    else {
-      widget.anime.completeInformations(await _request.chargerAnimeDetail(Authentication.getSingleton().token,widget.anime.id));
-    }
-
+    dynamic json = await AnimeRequest.chargerAnimeDetail(Authentication.getSingleton().token,widget.anime.id);
+    widget.anime = Anime.fromJson(json);
+    widget.anime.completeInformations(json);
     loadRecommandations();
     loadRelatedAnimes();
-
+    loadActions();
+    loadDetails();
+     print(widget.anime.nsfw);
     Widget widgetTemp = Column(
         children: [
           title(),
-          details(),
-          actions(),
+          details,
+          actions,
           synopsis(),
           recommandations,
           related_animes,
@@ -83,7 +81,7 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: Color.fromRGBO(17, 17, 17, 1),
       body: SingleChildScrollView(
         child: Column(
@@ -167,31 +165,33 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
    */
 
 
-  Widget details(){
-    return Container(
-      color: Color.fromRGBO(17, 17, 17, 1),
-      width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            widget.anime.status+"  -  "+widget.anime.type,
-            style: TextStyle(
-                color: Colors.white30,
-                fontSize: 14
+  loadDetails(){
+    setState(() {
+      details = Container(
+        color: Color.fromRGBO(17, 17, 17, 1),
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.anime.status+"  -  "+widget.anime.type,
+              style: TextStyle(
+                  color: Colors.white30,
+                  fontSize: 14
+              ),
             ),
-          ),
-          Text(
-            widget.anime.score.toString()+" ★",
-            style: TextStyle(
-                color: Colors.white30,
-                fontSize: 14
+            Text(
+              widget.anime.score.toString()+" ★",
+              style: TextStyle(
+                  color: Colors.white30,
+                  fontSize: 14
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget title(){
@@ -201,7 +201,7 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
         child: Text(
           widget.anime.title,
           style: TextStyle(
-              fontSize: 25,
+              fontSize: 28,
               color: Colors.white70
           ),
           textAlign: TextAlign.start,
@@ -209,6 +209,7 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
     );
   }
 
+  bool _first = true;//for the animatedCrossFade of synopsis
   Widget synopsis(){
     return Column(
       children: [
@@ -219,29 +220,40 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
           indent: 10,
           endIndent: 10,
         ),
-        Container(
-          width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.symmetric(horizontal: 20),
-          child:Text(
-            "synopsis",
-            style: TextStyle(
-                fontSize: 23,
-                fontWeight: FontWeight.bold,
-                color: Colors.white70
-            ),
-            textAlign: TextAlign.justify,
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.all(5),
-          child:  Text(
-            widget.anime.synopsis,
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 17
+        InkWell(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            margin: EdgeInsets.symmetric(horizontal: 20),
+            child:Text(
+              "synopsis",
+              style: TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white70
+              ),
+              textAlign: TextAlign.justify,
             ),
           ),
+          onTap: () {
+            _first = ! _first;
+          },
         ),
+        AnimatedCrossFade(
+            firstChild: Container(),
+            secondChild: Container(
+              margin: EdgeInsets.all(5),
+              child:  Text(
+                widget.anime.synopsis,
+                style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 17
+                ),
+              ),
+            ),
+            crossFadeState: _first ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+            duration: Duration(milliseconds: 100),
+        ),
+
       ],
     );
   }
@@ -254,52 +266,55 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
         recommandationsWidget.add(
             AnimeUI(widget.anime.recommandations.elementAt(i), true));
       }
-
-      recommandations = Container(
-        child: Column(
-          children: [
-            Divider(
-              color: Colors.black,
-              height: 20,
-              thickness: 2,
-              indent: 10,
-              endIndent: 10,
-            ),
-            Container(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                "recommandations",
-                style: TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white70
-                ),
-                textAlign: TextAlign.justify,
+      setState(() {
+        recommandations = Container(
+          child: Column(
+            children: [
+              Divider(
+                color: Colors.black,
+                height: 20,
+                thickness: 2,
+                indent: 10,
+                endIndent: 10,
               ),
-            ),
-            Container(
-              height: 100 * (14 / 9),
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: recommandationsWidget
+              Container(
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  "recommandations",
+                  style: TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white70
+                  ),
+                  textAlign: TextAlign.justify,
                 ),
               ),
-            ),
-          ],
-        ),
-      );
+              Container(
+                height: 100 * (14 / 9),
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: recommandationsWidget
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      });
     } else {
-      recommandations = Container();
+      setState(() {
+        recommandations = Container();
+      });
     }
   }
 
@@ -312,115 +327,134 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
         relatedAnimeWidget.add(
             AnimeUI(widget.anime.related_anime.elementAt(i), true));
       }
-
-      related_animes = Container(
-        child: Column(
-          children: [
-            Divider(
-              color: Colors.black,
-              height: 20,
-              thickness: 2,
-              indent: 10,
-              endIndent: 10,
-            ),
-            Container(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                "recommandations",
-                style: TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white70
+      setState(() {
+        related_animes = Container(
+          child: Column(
+            children: [
+              Divider(
+                color: Colors.black,
+                height: 20,
+                thickness: 2,
+                indent: 10,
+                endIndent: 10,
+              ),
+              Container(
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  "recommandations",
+                  style: TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white70
+                  ),
+                  textAlign: TextAlign.justify,
                 ),
-                textAlign: TextAlign.justify,
               ),
-            ),
-            Container(
-              height: 100 * (14 / 9),
-              width: double.infinity,
-              child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: relatedAnimeWidget,
-                  )
+              Container(
+                height: 100 * (14 / 9),
+                width: double.infinity,
+                child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: relatedAnimeWidget,
+                    )
+                ),
               ),
-            ),
-          ],
-        ),
-      );
+            ],
+          ),
+        );
+      });
+
 
     } else {
-      related_animes = Container();
+      setState(() {
+        related_animes = Container();
+      });
     }
 
   }
 
-  Widget actions() {
+  loadActions() {
     if(widget.anime.statusList.status == ListStatus.watching){
-      return Container(
-        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                border:  Border.all(color: Colors.blueAccent, width: 2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                "watching",
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 30,vertical: 10),
-              decoration: BoxDecoration(
-              ),
-              child: Text(
-                widget.anime.statusList.nb_ep_watched.toString()+"/"+widget.anime.nb_episodes.toString(),
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white70
-                ),
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                widget.anime.addOneEpisode();
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 7,vertical: 3),
-                width: 35,
-                height: 35,
+      setState(() {
+        print("je reset les valeurs "+widget.anime.statusList.nb_ep_watched.toString());
+
+        actions =  Container(
+          margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  border:  Border.all(color: Colors.green, width: 2),
-                  borderRadius: BorderRadius.circular(100),
+                  border:  Border.all(color: Colors.blueAccent, width: 2),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  "+",
+                  "watching",
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green
+                      color: Colors.blueAccent
                   ),
                 ),
               ),
-            )
-          ],
-        ),
-      );
+
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _showDialog();
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 30,vertical: 10),
+                  decoration: BoxDecoration(
+                  ),
+                  child: Text(
+                    widget.anime.statusList.nb_ep_watched.toString()+"/"+widget.anime.nb_episodes.toString(),
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white70
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      });
+    } else {
+      setState(() {
+        actions = Container();
+      });
     }
-    return Container();
+
+  }
+
+  void _showDialog() {
+    showDialog<int>(
+        context: context,
+        builder: (BuildContext context) {
+          return new NumberPicker(
+            minValue: 1,
+            maxValue: 10,
+            value: widget.anime.statusList.nb_ep_watched,
+          );
+        }
+    ).then((value) {
+      if (value != null) {
+          widget.anime.changeNbEpisode(value).then((value) {
+            setState(() {
+                loadActions();
+            });
+          });
+      }
+    });
   }
 }
 
@@ -520,4 +554,7 @@ class _DeployableMenuState extends State<DeployableMenu> {
     );
 
   }
+
+
+
 }

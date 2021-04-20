@@ -1,27 +1,36 @@
 class Token {
   String token_type;
-  int expires_in;
   String access_token;
   String refresh_token;
-  DateTime dateFin;
+  DateTime expiration_date;
 
-  Token(this.token_type,this.expires_in,this.access_token,this.refresh_token) {
-    dateFin = DateTime.now().add(Duration(seconds: expires_in));
+  Token(this.token_type,this.access_token,this.refresh_token, int expires_in) {
+    expiration_date = DateTime.now().add(Duration(seconds: expires_in));
+    print("date actuelle : "+DateTime.now().toString());
+    print("date fin du token : "+expiration_date.toString());
   }
 
-  factory Token.fromJson(dynamic json) {
-    return Token(json['token_type'] as String, json['expires_in'] as int,json['access_token'] as String,json['refresh_token'] as String);
+  Token._(this.token_type,this.access_token,this.refresh_token, this.expiration_date);
+
+  static Token fromJson(dynamic json) {
+    if(json["expiration_date"]!=null)
+      return Token._(json['token_type'] as String, json['access_token'] as String , json['refresh_token'] as String,DateTime.parse(json["expiration_date"]));
+    else
+      return Token(json['token_type'] as String, json['access_token'] as String , json['refresh_token'] as String,json['expires_in'] as int);
   }
+
+
 
   @override
   String toString() {
-    return '{ ${this.token_type}, ${this.expires_in}, ${this.access_token}, ${this.refresh_token} }';
+    return '{ ${this.token_type}, ${this.access_token}, ${this.refresh_token},${this.expiration_date} }';
   }
+  
   Map<String, dynamic> toJson() => {
-  'token_type' :token_type,
-  'expires_in' : expires_in,
-  'access_token' :access_token,
-  'refresh_token' :refresh_token,
+    'token_type' :token_type,
+    'access_token' :access_token,
+    'refresh_token' :refresh_token,
+    'expiration_date' : expiration_date.toIso8601String(),
   };
 
 }

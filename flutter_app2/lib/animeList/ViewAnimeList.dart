@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app2/anime/anime.dart';
+import 'package:flutter_app2/animeList/pageErreur.dart';
 import 'package:flutter_app2/token/authentication.dart';
+import 'package:flutter_app2/token/pageAuthentication.dart';
 import 'package:flutter_app2/token/token.dart';
 
 import 'animeUI.dart';
@@ -16,7 +18,6 @@ class ViewAnimeList extends StatefulWidget {
 }
 
 class _ViewAnimeListState extends State<ViewAnimeList> with AutomaticKeepAliveClientMixin<ViewAnimeList>{
-  AnimeList _list = new AnimeList();
   Widget _loadingPage = new Align(
     alignment: Alignment.center,
     child: CircularProgressIndicator(),
@@ -27,38 +28,38 @@ class _ViewAnimeListState extends State<ViewAnimeList> with AutomaticKeepAliveCl
   @override
   void initState() {
     super.initState();
-    _mainPage = _loadingPage;
-    verifierConnection();
+    chargerPage();
   }
 
-  verifierConnection() async {
-    bool connected  = await Authentication.getSingleton().tryConnection();
-    if(!connected){
-      print("vous devez vous connecter");
-      setState(() {
-        _mainPage =  PageAuthentication.getSingleton(chargerPage);
-      });
-    } else {
-      print("vous etes connecte");
-      _mainPage = _loadingPage;
-      chargerPage();
-    }
-  }
+
 
 
 
   chargerPage() async {
-      List<Anime> animeList = await _list.chargerList(Authentication.getSingleton().token,widget.page);
+    setState(() {
+      _mainPage = _loadingPage;
+    });
 
-      List<Widget> widgetList = new List<Widget>();
+      List<Anime> animeList = await AnimeRequest.chargerList(Authentication.getSingleton().token,widget.page);
+      if(animeList==null) {
+        setState(() {
+          _mainPage = PageErreur(chargerPage);
+        });
+        return;
+      }
+      List<Widget> widgetList = [];
       for (Anime anime in animeList) {
         widgetList.add(AnimeUI(anime,false));
       }
 
-      Widget widgetTemp = new GridView.count(
-          crossAxisCount: 3,
-          childAspectRatio: 9/14,
-          children: widgetList
+      Widget widgetTemp = Container(
+        margin: EdgeInsets.symmetric(horizontal: 5),
+        child: GridView.count(
+            crossAxisCount: 3,
+            childAspectRatio: ((MediaQuery.of(context).size.width-10)/3)/(((MediaQuery.of(context).size.width-10)/3*1.41)+25),
+            children: widgetList
+
+        ),
       );
       if(this.mounted){
         setState(() {
@@ -72,17 +73,7 @@ class _ViewAnimeListState extends State<ViewAnimeList> with AutomaticKeepAliveCl
   Widget build(BuildContext context) {
     return  Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: Text(
-            widget.page,
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 30,
-            ),
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
+
         body:_mainPage
     );
 
