@@ -87,7 +87,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         extendBody: true,
-        backgroundColor: Color.fromRGBO(32 , 32, 32, 1),
+        backgroundColor: Color.fromRGBO(20  , 20 , 20, 1),
         body: body,
         /*body: _widgetOptions.elementAt(_selectedIndex),*/
         bottomNavigationBar: ClipRRect(

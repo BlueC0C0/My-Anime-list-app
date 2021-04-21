@@ -17,13 +17,13 @@ class ViewAnimeList extends StatefulWidget {
   _ViewAnimeListState createState() => _ViewAnimeListState();
 }
 
-class _ViewAnimeListState extends State<ViewAnimeList> with AutomaticKeepAliveClientMixin<ViewAnimeList>{
+class _ViewAnimeListState extends State<ViewAnimeList>
+    with AutomaticKeepAliveClientMixin<ViewAnimeList> {
   Widget _loadingPage = new Align(
     alignment: Alignment.center,
     child: CircularProgressIndicator(),
   );
   Widget _mainPage;
-
 
   @override
   void initState() {
@@ -31,52 +31,43 @@ class _ViewAnimeListState extends State<ViewAnimeList> with AutomaticKeepAliveCl
     chargerPage();
   }
 
-
-
-
-
   chargerPage() async {
     setState(() {
       _mainPage = _loadingPage;
     });
 
-      List<Anime> animeList = await AnimeRequest.chargerList(Authentication.getSingleton().token,widget.page);
-      if(animeList==null) {
-        setState(() {
-          _mainPage = PageErreur(chargerPage);
-        });
-        return;
-      }
-      List<Widget> widgetList = [];
-      for (Anime anime in animeList) {
-        widgetList.add(AnimeUI(anime,false));
-      }
+    List<Anime> animeList = await AnimeRequest.chargerList(
+        Authentication.getSingleton().token, widget.page);
 
-      Widget widgetTemp = Container(
-        margin: EdgeInsets.symmetric(horizontal: 5),
-        child: GridView.count(
-            crossAxisCount: 3,
-            childAspectRatio: ((MediaQuery.of(context).size.width-10)/3)/(((MediaQuery.of(context).size.width-10)/3*1.41)+25),
-            children: widgetList
+    if (animeList == null) {
+      setState(() {
+        _mainPage = PageErreur(chargerPage);
+      });
+      return;
+    }
+    List<Widget> widgetList = [];
+    for (Anime anime in animeList) {
+      widgetList.add(AnimeUI(anime, false));
+    }
 
-        ),
-      );
-      if(this.mounted){
-        setState(() {
-          _mainPage = widgetTemp;
-        });
-      }
+    Widget widgetTemp = Container(
+      margin: EdgeInsets.symmetric(horizontal: 5),
+      child: GridView.count(
+          crossAxisCount: 3,
+          childAspectRatio: ((MediaQuery.of(context).size.width - 10) / 3) /
+              (((MediaQuery.of(context).size.width - 10) / 3 * 1.41) + 25),
+          children: widgetList),
+    );
+    if (this.mounted) {
+      setState(() {
+        _mainPage = widgetTemp;
+      });
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-        backgroundColor: Colors.transparent,
-
-        body:_mainPage
-    );
-
+    return _mainPage;
   }
 
   @override

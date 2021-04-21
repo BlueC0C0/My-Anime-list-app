@@ -37,6 +37,7 @@ dependencies:
   modal_bottom_sheet: ^2.0.0
   numberpicker: ^2.0.1
   google_fonts: ^2.0.0
+  scroll_app_bar: ^1.0.3
 
 dev_dependencies:
   flutter_test:
