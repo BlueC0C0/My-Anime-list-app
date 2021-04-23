@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:flutter_app2/anime/listStatus.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'ViewAnimeList.dart';
 import 'package:flutter/material.dart';
@@ -18,30 +19,8 @@ class _PageAnimeListState extends State<PageAnimeList>
   ScrollController _scrollController;
 
   int _selectedIndex = 0;
-  static List<Widget> _widgetOptions = <Widget>[
-    Padding(
-        child: ViewAnimeList(''), padding: EdgeInsets.symmetric(horizontal: 5)),
-    Padding(
-        child: ViewAnimeList('watching'),
-        padding: EdgeInsets.symmetric(horizontal: 5)),
-    Padding(
-        child: ViewAnimeList('completed'),
-        padding: EdgeInsets.symmetric(horizontal: 5)),
-    Padding(
-        child: ViewAnimeList('on_hold'),
-        padding: EdgeInsets.symmetric(horizontal: 5)),
-    Padding(
-        child: ViewAnimeList('plan_to_watch'),
-        padding: EdgeInsets.symmetric(horizontal: 5)),
-  ];
 
-  static List<GlobalKey> _widgetOptionsKey = <GlobalKey>[
-    GlobalKey(),
-    GlobalKey(),
-    GlobalKey(),
-    GlobalKey(),
-    GlobalKey()
-  ];
+  static List<GlobalKey> _widgetOptionsKey;
 
   final PageController controller =
       PageController(initialPage: 0, viewportFraction: 1.04);
@@ -69,6 +48,10 @@ class _PageAnimeListState extends State<PageAnimeList>
     print("indexFin " + indexFin.toString());
     print("//////////");
 
+    indexDebut-=30;
+    indexFin+=30;
+
+
     if (_scrollController.offset > indexDebut) {
       print("je suis dedans 1");
       _scrollController.animateTo(indexDebut + 0.0,
@@ -86,6 +69,10 @@ class _PageAnimeListState extends State<PageAnimeList>
   @override
   void initState() {
     _scrollController = ScrollController();
+    _widgetOptionsKey = [];
+    for (int i = 0; i < _list.length; i++) {
+      _widgetOptionsKey.add(GlobalKey());
+    }
     super.initState();
   }
 
@@ -93,6 +80,15 @@ class _PageAnimeListState extends State<PageAnimeList>
     _scrollController.dispose();
     super.dispose();
   }
+
+  static List<ListStatus> _list = <ListStatus>[
+    ListStatus.all,
+    ListStatus.watching,
+    ListStatus.completed,
+    ListStatus.on_hold,
+    ListStatus.dropped,
+    ListStatus.plan_to_watch,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -113,135 +109,38 @@ class _PageAnimeListState extends State<PageAnimeList>
             child: SizedBox(
               height: 40,
               width: double.infinity,
-              child: ListView(
+              child: ListView.builder(
                   controller: _scrollController,
                   physics: BouncingScrollPhysics(),
                   scrollDirection: Axis.horizontal,
-                  children: [
-                    InkWell(
-                      key: _widgetOptionsKey.elementAt(0),
+                  itemCount: _list.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      key: _widgetOptionsKey.elementAt(index),
                       highlightColor: Colors.transparent,
                       splashColor: Colors.transparent,
                       onTap: () {
-                        int nb = 0;
                         setState(() {
-                          goToPage(nb);
+                          goToPage(index);
                         });
                       },
                       child: Container(
                         padding: EdgeInsets.all(7),
                         child: AnimatedDefaultTextStyle(
                           duration: Duration(milliseconds: 150),
-                          child: Text("all"),
+                          child: Text(_list.elementAt(index).name),
                           style: GoogleFonts.rubik(
                               fontWeight: FontWeight.w700,
-                              color: 0 == _selectedIndex
+                              color: index == _selectedIndex
                                   ? Color.fromRGBO(217, 217, 217, 1)
                                   : Color.fromRGBO(69, 69, 69, 1),
                               fontSize: 22),
                         ),
                       ),
-                    ),
-                    InkWell(
-                      key: _widgetOptionsKey.elementAt(1),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      onTap: () {
-                        int nb = 1;
-                        setState(() {
-                          goToPage(nb);
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(7),
-                        child: AnimatedDefaultTextStyle(
-                          duration: Duration(milliseconds: 150),
-                          child: Text("watching"),
-                          style: GoogleFonts.rubik(
-                              fontWeight: FontWeight.w700,
-                              color: 1 == _selectedIndex
-                                  ? Color.fromRGBO(217, 217, 217, 1)
-                                  : Color.fromRGBO(69, 69, 69, 1),
-                              fontSize: 22),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      key: _widgetOptionsKey.elementAt(2),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      onTap: () {
-                        int nb = 2;
-                        setState(() {
-                          goToPage(nb);
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(7),
-                        child: AnimatedDefaultTextStyle(
-                          duration: Duration(milliseconds: 150),
-                          child: Text("completed"),
-                          style: GoogleFonts.rubik(
-                              fontWeight: FontWeight.w700,
-                              color: 2 == _selectedIndex
-                                  ? Color.fromRGBO(217, 217, 217, 1)
-                                  : Color.fromRGBO(69, 69, 69, 1),
-                              fontSize: 22),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      key: _widgetOptionsKey.elementAt(3),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      onTap: () {
-                        int nb = 3;
-                        setState(() {
-                          goToPage(nb);
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(7),
-                        child: AnimatedDefaultTextStyle(
-                          duration: Duration(milliseconds: 150),
-                          child: Text("paused"),
-                          style: GoogleFonts.rubik(
-                              fontWeight: FontWeight.w700,
-                              color: 3 == _selectedIndex
-                                  ? Color.fromRGBO(217, 217, 217, 1)
-                                  : Color.fromRGBO(69, 69, 69, 1),
-                              fontSize: 22),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      key: _widgetOptionsKey.elementAt(4),
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      onTap: () {
-                        int nb = 4;
-                        setState(() {
-                          goToPage(nb);
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(7),
-                        child: AnimatedDefaultTextStyle(
-                          duration: Duration(milliseconds: 150),
-                          child: Text("dropped"),
-                          style: GoogleFonts.rubik(
-                              fontWeight: FontWeight.w700,
-                              color: 4 == _selectedIndex
-                                  ? Color.fromRGBO(217, 217, 217, 1)
-                                  : Color.fromRGBO(69, 69, 69, 1),
-                              fontSize: 22),
-                        ),
-                      ),
-                    ),
-                  ]),
+                    );
+                  }),
             ),
           ),
-
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
@@ -250,29 +149,22 @@ class _PageAnimeListState extends State<PageAnimeList>
               overScroll.disallowGlow();
               return;
             },
-            child: PageView(
-              children: _widgetOptions,
-              controller: controller,
-              pageSnapping: true,
-              onPageChanged: (nb) {
-                setState(() {
-                  goToLabel(nb);
-                });
-              },
-            ) //Your scrolling widget goes here(like ListView)
+            child: PageView.builder(
+                controller: controller,
+                pageSnapping: true,
+                itemCount: _list.length,
+                onPageChanged: (nb) {
+                  setState(() {
+                    goToLabel(nb);
+                  });
+                },
+                itemBuilder: (context, currentIdx) {
+                  return Padding(
+                    child: ViewAnimeList(_list.elementAt(currentIdx)),
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                  );
+                }) //Your scrolling widget goes here(like ListView)
             ));
-
-/*
-          Row(
-            children: [
-              Text("all"),
-              Text("all"),
-              Text("all"),
-              Text("all"),
-              Text("all"),
-            ],
-          ),
- */
   }
 
   @override

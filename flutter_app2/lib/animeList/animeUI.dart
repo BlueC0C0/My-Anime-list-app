@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_app2/anime/anime.dart';
+import 'package:flutter_app2/anime/listStatus.dart';
 import 'package:flutter_app2/animeList/detailPage.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -19,7 +20,6 @@ class AnimeUI extends StatefulWidget {
 }
 
 class _AnimeUIState extends State<AnimeUI> {
-  Widget nsfwWidget;
 
   Widget _addEpisodeWidget = Container();
 
@@ -40,24 +40,6 @@ class _AnimeUIState extends State<AnimeUI> {
   @override
   void initState() {
     super.initState();
-    if (widget.anime.nsfw) {
-      nsfwWidget = Align(
-        alignment: Alignment.bottomRight,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-          margin: EdgeInsets.all(3),
-          decoration: BoxDecoration(
-              color: Color.fromRGBO(200, 10, 10, 1),
-              borderRadius: BorderRadius.circular(5)),
-          child: Text(
-            "nsfw",
-            style: TextStyle(fontSize: 12),
-          ),
-        ),
-      );
-    } else {
-      nsfwWidget = Container();
-    }
   }
 
   @override
@@ -71,14 +53,16 @@ class _AnimeUIState extends State<AnimeUI> {
               builder: (context) =>
                   PageAnimeDetail(widget.anime, widget.needLoading)),
       onDoubleTap: () {
-        setState(() {
-          _addEpisodeWidget = _addEpisodeWidgetOn;
-        });
-        Future.delayed(Duration(milliseconds: 400)).then((value) {
+        if(widget.anime.statusList.status == ListStatus.watching) {
           setState(() {
-            _addEpisodeWidget = Container();
+            _addEpisodeWidget = _addEpisodeWidgetOn;
           });
-        });
+          Future.delayed(Duration(milliseconds: 400)).then((value) {
+            setState(() {
+              _addEpisodeWidget = Container();
+            });
+          });
+        }
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 3, right: 3, left: 3, top: 3),
@@ -104,7 +88,7 @@ class _AnimeUIState extends State<AnimeUI> {
               ),
               SizedBox(
                 height: 5,
-                child: Container(color: Colors.green),
+                child: Container(color: widget.anime.statusList.getColor()),
               ),
               SizedBox(
                 width: double.infinity,

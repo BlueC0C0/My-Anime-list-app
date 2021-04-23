@@ -1,6 +1,8 @@
 
 
+import 'package:flutter_app2/anime/Seasons.dart';
 import 'package:flutter_app2/anime/anime.dart';
+import 'package:flutter_app2/anime/listStatus.dart';
 import 'package:flutter_app2/token/authentication.dart';
 import 'package:flutter_app2/token/token.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +16,7 @@ class AnimeRequest {
 
 
 
-  static chargerList(Token token,String page) async {
+  static chargerList(Token token,ListStatus page) async {
     print("recuperation des données...");
     //Map<String, String> header = {
     //  'Authorization': token.token_type+' '+token.access_token
@@ -28,7 +30,7 @@ class AnimeRequest {
             'api.myanimelist.net',
             '/v2/users/@me/animelist',
             {
-              'status': page,
+              'status': page.encodeName,
               'limit': '100',
               'fields': 'id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics'
             }
@@ -45,7 +47,7 @@ class AnimeRequest {
       return null;
   }
 
-  static chargerSaison(Token token) async {
+  static chargerSaison(Token token,int annee, Seasons season) async {
     Map<String, String> header = {
       'Authorization': "Bearer "+Authentication.getSingleton().token.access_token
     };
@@ -54,9 +56,10 @@ class AnimeRequest {
     var result =  await executeRequete(
         Uri.https(
             'api.myanimelist.net',
-            '/v2/anime/season/2020/',
+            '/v2/anime/season/'+annee.toString()+'/'+season.name,
             {
               'limit': '100',
+              'sort' : 'anime_num_list_users',
               'fields': 'id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics'
             }
         ),

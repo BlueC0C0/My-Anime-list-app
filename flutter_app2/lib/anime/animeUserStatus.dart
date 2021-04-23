@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'listStatus.dart';
 
 class AnimeUserStatus {
@@ -12,7 +14,7 @@ class AnimeUserStatus {
 
   factory AnimeUserStatus.fromJson(dynamic json) {
     if(json!=null)
-      return AnimeUserStatus(ListStatus.watching.getListStatus(json['status'] as String), json['score'] as int, json['num_episodes_watched'] as int, json['is_rewatching'] as bool);
+      return AnimeUserStatus(getListStatus(json['status'] as String), json['score'] as int, json['num_episodes_watched'] as int, json['is_rewatching'] as bool);
     else
       return AnimeUserStatus(ListStatus.none);
   }
@@ -20,6 +22,26 @@ class AnimeUserStatus {
   @override
   String toString() {
     return '{ ${this.status.name}, ${this.score ?? "NC"}, ${this.nb_ep_watched ?? "NC"}, ${this.rewatch ?? "NC"}}';
+  }
+
+  Color getColor() {
+    return this.status.color;
+  }
+
+  static ListStatus getListStatus(String chaine){
+    switch(chaine) {
+      case "completed":
+        return ListStatus.completed;
+      case "dropped":
+        return ListStatus.dropped;
+      case "on_hold":
+        return ListStatus.on_hold;
+      case "plan_to_watch":
+        return ListStatus.plan_to_watch;
+      case "watching":
+        return ListStatus.watching;
+    }
+
   }
 
 }

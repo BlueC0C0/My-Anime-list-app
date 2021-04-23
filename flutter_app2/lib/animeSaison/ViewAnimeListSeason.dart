@@ -1,26 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app2/anime/Seasons.dart';
 import 'package:flutter_app2/anime/anime.dart';
 import 'package:flutter_app2/anime/listStatus.dart';
+import 'package:flutter_app2/animeList/animeListRequests.dart';
+import 'package:flutter_app2/animeList/animeUI.dart';
 import 'package:flutter_app2/animeList/pageErreur.dart';
 import 'package:flutter_app2/token/authentication.dart';
 import 'package:flutter_app2/token/pageAuthentication.dart';
 import 'package:flutter_app2/token/token.dart';
 
-import 'animeUI.dart';
-import 'animeListRequests.dart';
+class ViewAnimeListSeason extends StatefulWidget {
+  Seasons page;
+  int year;
 
-class ViewAnimeList extends StatefulWidget {
-  ListStatus page;
+  ViewAnimeListSeason(this.page,this.year);
 
-  ViewAnimeList(this.page);
+  _ViewAnimeListSeasonState state;
+
 
   @override
-  _ViewAnimeListState createState() => _ViewAnimeListState();
+  _ViewAnimeListSeasonState createState()  {
+    state = _ViewAnimeListSeasonState();
+    return state;
+  }
 
+  void refreshList() {
+    if(state!=null)
+      state.chargerPage();
+  }
 }
 
-class _ViewAnimeListState extends State<ViewAnimeList>
-    with AutomaticKeepAliveClientMixin<ViewAnimeList> {
+class _ViewAnimeListSeasonState extends State<ViewAnimeListSeason>
+    with AutomaticKeepAliveClientMixin<ViewAnimeListSeason> {
   Widget _loadingPage = new Align(
     alignment: Alignment.center,
     child: CircularProgressIndicator(),
@@ -38,8 +49,8 @@ class _ViewAnimeListState extends State<ViewAnimeList>
       _mainPage = _loadingPage;
     });
 
-    List<Anime> animeList = await AnimeRequest.chargerList(
-        Authentication.getSingleton().token, widget.page);
+    List<Anime> animeList = await AnimeRequest.chargerSaison(
+        Authentication.getSingleton().token, widget.year, widget.page);
 
     if (animeList == null) {
       setState(() {
@@ -74,4 +85,8 @@ class _ViewAnimeListState extends State<ViewAnimeList>
 
   @override
   bool get wantKeepAlive => true;
+
+  void refreshList() {
+
+  }
 }
