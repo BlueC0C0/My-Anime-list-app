@@ -5,9 +5,10 @@ enum Seasons{
   spring,
   summer,
   fall,
+  none
 }
 
-extension ListStatusExtension on Seasons {
+extension SeasonsExtension on Seasons {
 
   String get name {
     switch(this) {
@@ -19,6 +20,26 @@ extension ListStatusExtension on Seasons {
         return "summer";
       case Seasons.fall:
         return "fall";
+      case Seasons.none:
+        return "unknow";
+    }
+  }
+}
+
+
+class SeasonsUtil {
+  static Seasons getFromFormatedString(String ch) {
+    switch (ch) {
+      case "fall":
+        return Seasons.fall;
+      case "summer":
+        return Seasons.summer;
+      case "spring":
+        return Seasons.spring;
+      case "winter":
+        return Seasons.winter;
+      default:
+        return Seasons.none;
     }
   }
 }

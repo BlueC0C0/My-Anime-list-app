@@ -46,6 +46,13 @@ class _PageAnimeSaisonState extends State<PageAnimeSaison> with AutomaticKeepAli
       padding: EdgeInsets.symmetric(horizontal: 5),
     ),
   ];
+  List<Seasons> _list = [
+    Seasons.winter,
+    Seasons.spring,
+    Seasons.summer,
+    Seasons.fall
+  ];
+
 
   final PageController controller =
   PageController(initialPage: 0, viewportFraction: 1.04);
@@ -102,7 +109,7 @@ class _PageAnimeSaisonState extends State<PageAnimeSaison> with AutomaticKeepAli
     super.dispose();
   }
 
-  List<Seasons> _list = Seasons.values;
+
 
   @override
   Widget build(BuildContext context) {

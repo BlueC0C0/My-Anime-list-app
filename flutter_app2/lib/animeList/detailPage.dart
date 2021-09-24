@@ -29,6 +29,9 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   Widget actions;
   Widget _mainPage;
   NetworkImage _mainPicture;
+  double _pictureOffset = 0;
+  ScrollController _scrollController;
+
 
   Widget _loadingPage = Align(
       alignment: Alignment.center,
@@ -42,6 +45,15 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   @override
   void initState(){
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if(_scrollController.hasClients) {
+        setState(() {
+          _pictureOffset = _scrollController.offset/2;
+        });
+      }
+      print(_pictureOffset);
+    });
     recommandations = _loadingPage;
     related_animes = _loadingPage;
     _mainPage = _loadingPage;
@@ -52,20 +64,22 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   Future<void> chargerPage() async {
     dynamic json = await AnimeRequest.chargerAnimeDetail(Authentication.getSingleton().token,widget.anime.id);
     widget.anime = Anime.fromJson(json);
-    widget.anime.completeInformations(json);
-    loadRecommandations();
-    loadRelatedAnimes();
-    loadActions();
-    loadDetails();
+    //loadRecommandations();
+    //loadRelatedAnimes();
+    //loadActions();
+    //loadDetails();
      print(widget.anime.nsfw);
     Widget widgetTemp = Column(
         children: [
-          title(),
-          details,
-          actions,
-          synopsis(),
-          recommandations,
-          related_animes,
+          Text(
+            "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+          ),
+          //title(),
+          //details,
+          //actions,
+          //synopsis(),
+          //recommandations,
+          //related_animes,
           Padding(
             padding: EdgeInsets.only(top: 50),
           )
@@ -84,33 +98,38 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
     return Scaffold(
       backgroundColor: Color.fromRGBO(17, 17, 17, 1),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: _mainPicture,
+            ClipRRect(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: _mainPicture,
+                  ),
                 ),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaY: 5, sigmaX: 5),
-                child: Container(
-                  color: Color.fromRGBO(10, 10, 10, 0.5),
-                  padding: EdgeInsets.all(15),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: Image(
-                      image: _mainPicture,
-                      width: MediaQuery.of(context).size.width/3,
-                      height: (MediaQuery.of(context).size.width/3)*(14/9),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaY: 5, sigmaX: 5),
+                  child: Container(
+                    color: Color.fromRGBO(10, 10, 10, 0.5),
+                    padding: EdgeInsets.all(15),
+                    child: Container(
+                      child: Positioned(
+                        top: _pictureOffset,
+                        child : Image(
+                          image: _mainPicture,
+                          width: MediaQuery.of(context).size.width/3,
+                          height: (MediaQuery.of(context).size.width/3)*(14/9),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-            new Container(
+            Container(
               color: Color.fromRGBO(17, 17, 17, 1),
               child: _mainPage,
             )
@@ -164,7 +183,7 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   }
    */
 
-
+/*
   loadDetails(){
     setState(() {
       details = Container(
@@ -456,6 +475,7 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
       }
     });
   }
+  */
 }
 
 

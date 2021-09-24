@@ -40,6 +40,8 @@ class AnimeUserStatus {
         return ListStatus.plan_to_watch;
       case "watching":
         return ListStatus.watching;
+      default:
+        return ListStatus.none;
     }
 
   }

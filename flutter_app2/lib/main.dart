@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app2/animeList/pageAnimeList.dart';
 import 'package:flutter_app2/animeSaison/pageAnimeSaison.dart';
 import 'package:flutter_app2/token/authentication.dart';
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
       ),
       title: _title,
@@ -85,64 +87,69 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        extendBody: true,
-        backgroundColor: Color.fromRGBO(20  , 20 , 20, 1),
-        body: body,
-        /*body: _widgetOptions.elementAt(_selectedIndex),*/
-        bottomNavigationBar: ClipRRect(
-          borderRadius: BorderRadius.vertical(
-              top: Radius.circular(MediaQuery.of(context).size.width / 25),
-              //pour avoir un border radius a peu pres responsive
-              bottom: Radius.circular(MediaQuery.of(context).size.width / 40)),
-          child: Theme(
-            data: ThemeData(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-            ),
-            child: BottomNavigationBar(
-                selectedIconTheme: IconThemeData(
-                  color: Color.fromRGBO(0, 0, 0, 1),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Use [SystemUiOverlayStyle.light] for white status bar
+      // or [SystemUiOverlayStyle.dark] for black status bar
+      // https://stackoverflow.com/a/58132007/1321917
+      value: SystemUiOverlayStyle(
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+          extendBody: true,
+          backgroundColor: Color.fromRGBO(20, 20, 20, 1),
+          body: body,
+          /*body: _widgetOptions.elementAt(_selectedIndex),*/
+          bottomNavigationBar: ClipRRect(
+            borderRadius: BorderRadius.vertical(
+                top: Radius.circular(MediaQuery.of(context).size.width / 25),
+                //pour avoir un border radius a peu pres responsive
+                bottom:
+                    Radius.circular(MediaQuery.of(context).size.width / 40)),
+            child: Theme(
+                data: ThemeData(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
                 ),
-                unselectedIconTheme: IconThemeData(
-                  color: Color.fromRGBO(0, 0, 0, 0.5),
-                ),
-                selectedLabelStyle: TextStyle(
-                    color: Color.fromRGBO(0, 0, 0, 1),
-                    fontWeight: FontWeight.w800
-                ),
-                unselectedLabelStyle: TextStyle(
-                    color: Color.fromRGBO(0, 0, 0, 0.5),
-                    fontWeight: FontWeight.w800
-                ),
-                selectedFontSize: MediaQuery.of(context).size.height/60,
-                unselectedFontSize: MediaQuery.of(context).size.height/60,
-                backgroundColor: MyApp.bottomNavigationBarColor,
+                child: BottomNavigationBar(
+                    selectedIconTheme: IconThemeData(
+                      color: Color.fromRGBO(0, 0, 0, 1),
+                    ),
+                    unselectedIconTheme: IconThemeData(
+                      color: Color.fromRGBO(0, 0, 0, 0.5),
+                    ),
+                    selectedLabelStyle: TextStyle(
+                        color: Color.fromRGBO(0, 0, 0, 1),
+                        fontWeight: FontWeight.w800),
+                    unselectedLabelStyle: TextStyle(
+                        color: Color.fromRGBO(0, 0, 0, 0.5),
+                        fontWeight: FontWeight.w800),
+                    selectedFontSize: MediaQuery.of(context).size.height / 60,
+                    unselectedFontSize: MediaQuery.of(context).size.height / 60,
+                    backgroundColor: MyApp.bottomNavigationBarColor,
+                    items: const <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.apps),
+                        label: 'My List',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.calendar_today),
+                        label: 'Seasonal',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.search),
+                        label: 'Search',
+                      ),
+                    ],
+                    currentIndex: _selectedIndex,
+                    selectedItemColor: Color.fromRGBO(0, 0, 0, 1),
+                    onTap: (int) {
+                      print("changement de page");
+                      _onItemTapped(int);
+                      chargerPage();
+                    })),
+          )),
+    );
 
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.apps),
-                    label: 'My List',
-                  ),
-                  BottomNavigationBarItem(
-
-                    icon: Icon(Icons.calendar_today),
-                    label: 'Seasonal',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.search),
-                    label: 'Search',
-                  ),
-                ],
-                currentIndex: _selectedIndex,
-                selectedItemColor: Color.fromRGBO(0, 0, 0, 1),
-                onTap: (int) {
-                  print("changement de page");
-                  _onItemTapped(int);
-                  chargerPage();
-                })
-          ),
-        ));
   }
 
   chargerPage() {

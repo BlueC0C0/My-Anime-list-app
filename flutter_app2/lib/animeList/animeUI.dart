@@ -53,7 +53,7 @@ class _AnimeUIState extends State<AnimeUI> {
               builder: (context) =>
                   PageAnimeDetail(widget.anime, widget.needLoading)),
       onDoubleTap: () {
-        if(widget.anime.statusList.status == ListStatus.watching) {
+        if(widget.anime.userStatus.status == ListStatus.watching) {
           setState(() {
             _addEpisodeWidget = _addEpisodeWidgetOn;
           });
@@ -88,7 +88,7 @@ class _AnimeUIState extends State<AnimeUI> {
               ),
               SizedBox(
                 height: 5,
-                child: Container(color: widget.anime.statusList.getColor()),
+                child: Container(color: widget.anime.userStatus.getColor()),
               ),
               SizedBox(
                 width: double.infinity,

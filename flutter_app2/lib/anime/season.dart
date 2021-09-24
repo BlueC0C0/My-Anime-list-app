@@ -1,20 +1,22 @@
 
 
+import 'Seasons.dart';
+
 class Season {
-  String periode;
+  Seasons season;
   int annee;
 
-  Season(this.annee,this.periode);
+  Season(this.annee,this.season);
 
   factory Season.fromJson(dynamic json) {
     if(json!=null)
-      return Season(json['year'] as int, json['season'] as String );
+      return Season(json['year'] as int, SeasonsUtil.getFromFormatedString(json['season']));
     else
-      return Season(0,"NC");
+      return Season(0,Seasons.none);
   }
 
   @override
   String toString() {
-    return '{ ${this.annee}, ${this.periode}}';
+    return '{ ${this.annee}, ${this.season}}';
   }
 }
