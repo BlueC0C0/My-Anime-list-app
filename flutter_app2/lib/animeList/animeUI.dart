@@ -20,20 +20,15 @@ class AnimeUI extends StatefulWidget {
 }
 
 class _AnimeUIState extends State<AnimeUI> {
-
   Widget _addEpisodeWidget = Container();
 
   Widget _addEpisodeWidgetOn = Container(
     padding: EdgeInsets.all(10),
     decoration: BoxDecoration(
-        color: Colors.white70,
-        borderRadius: BorderRadius.circular(50)
-    ),
+        color: Colors.white70, borderRadius: BorderRadius.circular(50)),
     child: Text(
       "+1",
-      style: TextStyle(
-          fontSize: 25
-      ),
+      style: TextStyle(fontSize: 25),
     ),
   );
 
@@ -45,15 +40,14 @@ class _AnimeUIState extends State<AnimeUI> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-          showCupertinoModalBottomSheet(
-              expand: true,
-              context: context,
-              bounce: true,
-              builder: (context) =>
-                  PageAnimeDetail(widget.anime, widget.needLoading)),
+      onTap: () => showCupertinoModalBottomSheet(
+          //expand: true,
+          context: context,
+          //bounce: true,
+          builder: (context) =>
+              PageAnimeDetail(widget.anime, widget.needLoading)),
       onDoubleTap: () {
-        if(widget.anime.userStatus.status == ListStatus.watching) {
+        if (widget.anime.userStatus.status == ListStatus.watching) {
           setState(() {
             _addEpisodeWidget = _addEpisodeWidgetOn;
           });
@@ -73,17 +67,14 @@ class _AnimeUIState extends State<AnimeUI> {
               AspectRatio(
                 aspectRatio: 10 / 14.10,
                 child: Container(
-                  child: Center(
-                      child: _addEpisodeWidget
-                  ),
+                  child: Center(child: _addEpisodeWidget),
                   decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: NetworkImage(
-                          widget.anime.mainImage.medium,
-                        ),
-                        fit: BoxFit.cover,
-                      )
-                  ),
+                    image: NetworkImage(
+                      widget.anime.mainImage.medium,
+                    ),
+                    fit: BoxFit.cover,
+                  )),
                 ),
               ),
               SizedBox(

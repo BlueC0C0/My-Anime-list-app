@@ -16,7 +16,7 @@ class PageAnimeDetail extends StatefulWidget {
   Anime anime;
   bool needLoading = false;
 
-  PageAnimeDetail(this.anime,[this.needLoading]);
+  PageAnimeDetail(this.anime, [this.needLoading]);
 
   @override
   _PageAnimeDetailState createState() => _PageAnimeDetailState();
@@ -32,24 +32,21 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   double _pictureOffset = 0;
   ScrollController _scrollController;
 
-
   Widget _loadingPage = Align(
-      alignment: Alignment.center,
-      child: CircularProgressIndicator(),
-    );
+    alignment: Alignment.center,
+    child: CircularProgressIndicator(),
+  );
 
   _PageAnimeDetailState();
 
-
-
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
-      if(_scrollController.hasClients) {
+      if (_scrollController.hasClients) {
         setState(() {
-          _pictureOffset = _scrollController.offset/2;
+          _pictureOffset = _scrollController.offset / 2;
         });
       }
       print(_pictureOffset);
@@ -62,31 +59,32 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   }
 
   Future<void> chargerPage() async {
-    dynamic json = await AnimeRequest.chargerAnimeDetail(Authentication.getSingleton().token,widget.anime.id);
+    dynamic json = await AnimeRequest.chargerAnimeDetail(
+        Authentication.getSingleton().token, widget.anime.id);
     widget.anime = Anime.fromJson(json);
     //loadRecommandations();
     //loadRelatedAnimes();
     //loadActions();
     //loadDetails();
-     print(widget.anime.nsfw);
+    print(widget.anime.nsfw);
     Widget widgetTemp = Column(
-        children: [
-          Text(
-            "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
-          ),
-          //title(),
-          //details,
-          //actions,
-          //synopsis(),
-          //recommandations,
-          //related_animes,
-          Padding(
-            padding: EdgeInsets.only(top: 50),
-          )
-        ],
-      );
+      children: [
+        Text(
+          "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        ),
+        //title(),
+        //details,
+        //actions,
+        //synopsis(),
+        //recommandations,
+        //related_animes,
+        Padding(
+          padding: EdgeInsets.only(top: 50),
+        )
+      ],
+    );
 
-    if(this.mounted){
+    if (this.mounted) {
       setState(() {
         _mainPage = widgetTemp;
       });
@@ -97,47 +95,44 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(17, 17, 17, 1),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          children: [
-            ClipRRect(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: _mainPicture,
-                  ),
+      body: Column(
+        children: [
+          ClipRRect(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: _mainPicture,
                 ),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaY: 5, sigmaX: 5),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaY: 5, sigmaX: 5),
+                child: Container(
+                  color: Color.fromRGBO(10, 10, 10, 0.5),
+                  padding: EdgeInsets.all(15),
                   child: Container(
-                    color: Color.fromRGBO(10, 10, 10, 0.5),
-                    padding: EdgeInsets.all(15),
-                    child: Container(
-                      child: Positioned(
-                        top: _pictureOffset,
-                        child : Image(
-                          image: _mainPicture,
-                          width: MediaQuery.of(context).size.width/3,
-                          height: (MediaQuery.of(context).size.width/3)*(14/9),
-                        ),
+                    child: Positioned(
+                      top: _pictureOffset,
+                      child: Image(
+                        image: _mainPicture,
+                        width: MediaQuery.of(context).size.width / 3,
+                        height:
+                            (MediaQuery.of(context).size.width / 3) * (14 / 9),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-            Container(
-              color: Color.fromRGBO(17, 17, 17, 1),
-              child: _mainPage,
-            )
-          ],
-        ),
+          ),
+          Container(
+            color: Color.fromRGBO(17, 17, 17, 1),
+            child: _mainPage,
+          )
+        ],
       ),
     );
-
   }
   /*
    @override
@@ -478,11 +473,10 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   */
 }
 
-
 class DeployableMenu extends StatefulWidget {
   Widget _widget;
   String _name;
-  DeployableMenu(this._widget,this._name);
+  DeployableMenu(this._widget, this._name);
 
   @override
   _DeployableMenuState createState() => _DeployableMenuState();
@@ -492,7 +486,7 @@ class _DeployableMenuState extends State<DeployableMenu> {
   bool _droppedDown;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
   }
 
@@ -524,7 +518,6 @@ class _DeployableMenuState extends State<DeployableMenu> {
                       firstChild: Icon(
                         Icons.keyboard_arrow_right,
                         color: Colors.white70,
-
                       ),
                       secondChild: Transform.rotate(
                         angle: 90 * pi / 180,
@@ -572,9 +565,5 @@ class _DeployableMenuState extends State<DeployableMenu> {
         ],
       ),
     );
-
   }
-
-
-
 }
