@@ -1,0 +1,1 @@
+enum RequestReturn { error, success }

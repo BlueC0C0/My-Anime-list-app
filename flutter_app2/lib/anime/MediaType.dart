@@ -20,3 +20,24 @@ class MediaTypeUtil {
     }
   }
 }
+
+extension MediaTypeExtension on MediaType {
+  String get name {
+    switch (this) {
+      case MediaType.unknown:
+        return "unknown";
+      case MediaType.tv:
+        return "tv";
+      case MediaType.special:
+        return "special";
+      case MediaType.movie:
+        return "movie";
+      case MediaType.music:
+        return "music";
+      case MediaType.ona:
+        return "ona";
+      case MediaType.ova:
+        return "ova";
+    }
+  }
+}

@@ -1,28 +1,34 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_app2/animeList/pageAnimeList.dart';
-import 'package:flutter_app2/animeSaison/pageAnimeSaison.dart';
+import 'package:flutter_app2/token/loadStatus.dart';
+import 'package:flutter_app2/icons/custom_icons_icons.dart';
+import 'package:flutter_app2/theme/theme.dart';
 import 'package:flutter_app2/token/authentication.dart';
 import 'package:flutter_app2/token/pageAuthentication.dart';
+import 'package:flutter_app2/view/animeList/pageAnimeList.dart';
+import 'package:flutter_app2/view/animeNews/pageNews.dart';
+import 'package:flutter_app2/view/animeSaison/pageAnimeSaison.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  static const String _title = 'MAL App';
   static Authentication _auth;
-
-  static Color activeIconColor = Color.fromRGBO(0, 0, 0, 1);
-  static Color passiveIconColor = Color.fromRGBO(0, 0, 0, 0.5);
-  static Color bottomNavigationBarColor = Color.fromRGBO(31, 78, 130, 1);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
+    return AdaptiveTheme(
+      light: lightTheme,
+      dark: darkTheme,
+      initial: AdaptiveThemeMode.system,
+      builder: (theme, darkTheme) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'MAL client',
+        theme: theme,
+        darkTheme: darkTheme,
+        home: MyStatefulWidget(),
       ),
-      title: _title,
-      home: MyStatefulWidget(),
     );
   }
 }
@@ -36,128 +42,96 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
-  static List<Widget> _widgetOptions = <Widget>[
-    PageAnimeList(),
-    PageAnimeSaison(),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
-  ];
 
   void _onItemTapped(int index) {
     if (_selectedIndex == 0 && index == 0) {
-      (_widgetOptions[0] as PageAnimeList).state.goToPage(0);
+      //(_widgetOptions[0] as PageAnimeList).state.goToPage(0);
     }
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  Widget body;
+  LoadStatus _loadStatus = LoadStatus.loading;
 
   @override
   void initState() {
     super.initState();
-    body = Center(
-      child: CircularProgressIndicator(),
-    );
     verifierConnection();
+    AdaptiveTheme.of(context)
+        .modeChangeNotifier
+        .addListener(() => setState(() {}));
   }
 
   verifierConnection() async {
-    print("verifierConnection");
     Authentication auth = Authentication.getSingleton();
-    if (!auth.isTokenExists()) {
-      auth.token = await auth.getTokenInStorage();
-      if (!auth.isTokenExists()) {
-        print("vous devez vous connecter");
-        setState(() {
-          body = PageAuthentication.getSingleton(chargerPage);
-        });
-      } else {
-        print("vous etes connecte");
-        chargerPage();
-      }
-    }
+
+    LoadStatus tempStatus = await auth.tryConnection();
+    setState(() {
+      _loadStatus = tempStatus;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Use [SystemUiOverlayStyle.light] for white status bar
-      // or [SystemUiOverlayStyle.dark] for black status bar
-      // https://stackoverflow.com/a/58132007/1321917
-      value: SystemUiOverlayStyle(
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-          extendBody: true,
-          backgroundColor: Color.fromRGBO(20, 20, 20, 1),
-          body: body,
-          /*body: _widgetOptions.elementAt(_selectedIndex),*/
-          bottomNavigationBar: ClipRRect(
-            borderRadius: BorderRadius.vertical(
-                top: Radius.circular(MediaQuery.of(context).size.width / 25),
-                //pour avoir un border radius a peu pres responsive
-                bottom:
-                    Radius.circular(MediaQuery.of(context).size.width / 40)),
-            child: Theme(
-                data: ThemeData(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
+    return _loadStatus == LoadStatus.loading
+        ? new Align(
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(
+                color: AdaptiveTheme.of(context).theme.hintColor),
+          )
+        : _loadStatus == LoadStatus.needAction
+            ? PageAuthentication.getSingleton(chargerPageApresConnection)
+            : Scaffold(
+                extendBody: true,
+                body: IndexedStack(
+                  index: _selectedIndex,
+                  children: <Widget>[
+                    PageAnimeList(),
+                    PageAnimeSaison(),
+                    PageNews(),
+                  ],
                 ),
-                child: BottomNavigationBar(
-                    selectedIconTheme: IconThemeData(
-                      color: Color.fromRGBO(0, 0, 0, 1),
-                    ),
-                    unselectedIconTheme: IconThemeData(
-                      color: Color.fromRGBO(0, 0, 0, 0.5),
-                    ),
-                    selectedLabelStyle: TextStyle(
-                        color: Color.fromRGBO(0, 0, 0, 1),
-                        fontWeight: FontWeight.w800),
-                    unselectedLabelStyle: TextStyle(
-                        color: Color.fromRGBO(0, 0, 0, 0.5),
-                        fontWeight: FontWeight.w800),
-                    selectedFontSize: MediaQuery.of(context).size.height / 60,
-                    unselectedFontSize: MediaQuery.of(context).size.height / 60,
-                    backgroundColor: MyApp.bottomNavigationBarColor,
+                /*body: _widgetOptions.elementAt(_selectedIndex),*/
+                bottomNavigationBar: ClipRRect(
+                  borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(
+                          MediaQuery.of(context).size.width / 25),
+                      //pour avoir un border radius a peu pres responsive
+                      bottom: Radius.circular(
+                          MediaQuery.of(context).size.width / 40)),
+                  child: BottomNavigationBar(
+                    selectedFontSize: MediaQuery.of(context).size.width / 30,
+                    unselectedFontSize: MediaQuery.of(context).size.width / 30,
                     items: const <BottomNavigationBarItem>[
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.apps),
+                        icon: Icon(CustomIcons.applications),
                         label: 'My List',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.calendar_today),
+                        icon: Icon(CustomIcons.calendrier),
                         label: 'Seasonal',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.search),
+                        icon: Icon(CustomIcons.search),
                         label: 'Search',
                       ),
                     ],
                     currentIndex: _selectedIndex,
-                    selectedItemColor: Color.fromRGBO(0, 0, 0, 1),
+                    showUnselectedLabels: false,
+                    iconSize: MediaQuery.of(context).size.width / 15,
                     onTap: (int) {
                       print("changement de page");
                       _onItemTapped(int);
-                      chargerPage();
-                    })),
-          )),
-    );
-
+                    },
+                  ),
+                ),
+              );
   }
 
-  chargerPage() {
+  chargerPageApresConnection() {
     setState(() {
-      body = IndexedStack(
-        children: _widgetOptions,
-        index: _selectedIndex,
-      );
+      _loadStatus = LoadStatus.loadComplete;
     });
   }
 }
