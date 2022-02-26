@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_app2/anime/userList/listStatus.dart';
 import 'package:flutter_app2/network/animeListRequests.dart';
 import 'package:flutter_app2/token/authentication.dart';
 import 'package:flutter_app2/token/loadStatus.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'Utils.dart';
 import 'animeUI.dart';
 import 'dart:math';
@@ -42,7 +45,7 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
                 widget.anime = Anime.fromJson(json);
               }));
     }
-[]
+
     AdaptiveTheme.of(context).modeChangeNotifier.addListener(() {
       setState(() {});
     });
@@ -51,8 +54,19 @@ class _PageAnimeDetailState extends State<PageAnimeDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton:
-            FloatingActionButton(child: Icon(Icons.mode_edit),backgroundColor: AdaptiveTheme.of,),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.mode_edit),
+          backgroundColor: AdaptiveTheme.of(context)
+              .theme
+              .bottomNavigationBarTheme
+              .backgroundColor,
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (context) => EditAnimeBottomPage(widget.anime),
+            );
+          },
+        ),
         body: CustomScrollView(
           physics: BouncingScrollPhysics(),
           slivers: [
@@ -492,6 +506,197 @@ class ChangeStatusList extends StatelessWidget {
             color: Utils.getSingleton().getStatusTexteColor(listStatus),
             fontWeight: FontWeight.w800,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class EditAnimeBottomPage extends StatefulWidget {
+  Anime _anime;
+
+  EditAnimeBottomPage(this._anime);
+
+  @override
+  _EditAnimeBottomPageState createState() => _EditAnimeBottomPageState();
+}
+
+class _EditAnimeBottomPageState extends State<EditAnimeBottomPage> {
+  ListStatus currentStatus;
+
+  @override
+  void initState() {
+    currentStatus = widget._anime.userStatus.status;
+    if (currentStatus == ListStatus.none) {
+      currentStatus = ListStatus.watching;
+    }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.close,
+              size: 40,
+            ),
+          ),
+          title: Text(
+            "Edit anime's datas",
+            style: GoogleFonts.rubik(color: Colors.white, fontSize: 24),
+          ),
+          centerTitle: true,
+        ),
+        body: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(15),
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Status",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      StatusListIndicator(ListStatus.watching, currentStatus,
+                          () {
+                        setState(() {
+                          currentStatus = ListStatus.watching;
+                        });
+                      }),
+                      SizedBox(width: 15),
+                      StatusListIndicator(ListStatus.completed, currentStatus,
+                          () {
+                        setState(() {
+                          currentStatus = ListStatus.completed;
+                        });
+                      }),
+                      SizedBox(width: 15),
+                      StatusListIndicator(
+                          ListStatus.plan_to_watch, currentStatus, () {
+                        setState(() {
+                          currentStatus = ListStatus.plan_to_watch;
+                        });
+                      }),
+                      SizedBox(width: 15),
+                      StatusListIndicator(ListStatus.paused, currentStatus, () {
+                        setState(() {
+                          currentStatus = ListStatus.paused;
+                        });
+                      }),
+                      SizedBox(width: 15),
+                      StatusListIndicator(ListStatus.dropped, currentStatus,
+                          () {
+                        setState(() {
+                          currentStatus = ListStatus.dropped;
+                        });
+                      }),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    "Number of episodes",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    "Score",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    height: 50,
+                  )
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              child: InkWell(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AdaptiveTheme.of(context)
+                        .theme
+                        .bottomNavigationBarTheme
+                        .backgroundColor,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: Text(
+                    "Sauvegarder",
+                    style: GoogleFonts.rubik(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class StatusListIndicator extends StatefulWidget {
+  ListStatus _listStatus;
+  ListStatus _currentStatus;
+  Function _ontap;
+
+  StatusListIndicator(this._listStatus, this._currentStatus, this._ontap);
+
+  @override
+  _StatusListIndicatorState createState() => _StatusListIndicatorState();
+}
+
+class _StatusListIndicatorState extends State<StatusListIndicator> {
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        widget._ontap();
+      },
+      child: Container(
+        padding: EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: widget._currentStatus == widget._listStatus
+              ? Utils.getSingleton()
+                  .getStatusBackgroundColor(widget._listStatus)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Utils.getSingleton().getStatusIcon(widget._listStatus),
+              color: widget._currentStatus == widget._listStatus
+                  ? Utils.getSingleton().getStatusTexteColor(widget._listStatus)
+                  : AdaptiveTheme.of(context).theme.textTheme.headline1.color,
+              size: 35,
+            ),
+            AnimatedContainer(
+                padding: EdgeInsets.only(left: 30),
+                duration: Duration(milliseconds: 100),
+                child: Text(
+                  widget._listStatus.name,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                width: widget._currentStatus == widget._listStatus
+                    ? MediaQuery.of(context).size.width - 34 * 4
+                    : 0),
+          ],
         ),
       ),
     );

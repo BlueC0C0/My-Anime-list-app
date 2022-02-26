@@ -1,11 +1,12 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_app2/anime/userList/listStatus.dart';
 
 class Utils {
   static Utils _singleton;
 
-  Utils() {}
+  Utils();
 
   static Utils getSingleton() {
     if (_singleton == null) {
@@ -39,6 +40,20 @@ class Utils {
       return Color.fromRGBO(141, 42, 38, 1);
     } else {
       return Color.fromRGBO(146, 48, 172, 1); //planned
+    }
+  }
+
+  IconData getStatusIcon(ListStatus subStatus) {
+    if (subStatus == ListStatus.watching) {
+      return Icons.play_arrow;
+    } else if (subStatus == ListStatus.completed) {
+      return Icons.check;
+    } else if (subStatus == ListStatus.paused) {
+      return Icons.pause;
+    } else if (subStatus == ListStatus.dropped) {
+      return Icons.block;
+    } else {
+      return Icons.access_time_rounded; //planned
     }
   }
 }
