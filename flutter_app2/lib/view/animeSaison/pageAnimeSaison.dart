@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app2/anime/Seasons.dart';
 import 'package:flutter_app2/icons/custom_icons_icons.dart';
 import 'package:flutter_app2/token/loadStatus.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 import 'ViewAnimeListSeason.dart';
@@ -29,10 +28,10 @@ class _PageAnimeSaisonState extends State<PageAnimeSaison>
 
   List<ViewAnimeListSeason> _pages;
   List<Seasons> _list = [
-    Seasons.winter,
-    Seasons.spring,
-    Seasons.summer,
-    Seasons.fall
+    Seasons.WINTER,
+    Seasons.SPRING,
+    Seasons.SUMMER,
+    Seasons.FALL
   ];
 
   @override
@@ -46,10 +45,10 @@ class _PageAnimeSaisonState extends State<PageAnimeSaison>
       });
     });
     _pages = [
-      ViewAnimeListSeason(Seasons.winter, _current_year, _textController),
-      ViewAnimeListSeason(Seasons.spring, _current_year, _textController),
-      ViewAnimeListSeason(Seasons.summer, _current_year, _textController),
-      ViewAnimeListSeason(Seasons.fall, _current_year, _textController),
+      ViewAnimeListSeason(Seasons.WINTER, _current_year, _textController),
+      ViewAnimeListSeason(Seasons.SPRING, _current_year, _textController),
+      ViewAnimeListSeason(Seasons.SUMMER, _current_year, _textController),
+      ViewAnimeListSeason(Seasons.FALL, _current_year, _textController),
     ];
     super.initState();
   }
@@ -142,7 +141,7 @@ class _PageAnimeSaisonState extends State<PageAnimeSaison>
             tabs: List<Tab>.generate(_list.length, (int index) {
               return Tab(
                 child: Text(
-                  _list.elementAt(index).name,
+                  _list.elementAt(index).displayName(),
                   style: TextStyle(
                     fontSize: AdaptiveTheme.of(context)
                         .theme
@@ -194,6 +193,15 @@ class _PageAnimeSaisonState extends State<PageAnimeSaison>
                             value: _currentValue,
                             minValue: 2000,
                             maxValue: 2030,
+                            haptics: true,
+                            selectedTextStyle: TextStyle(
+                                color: Colors.white,
+                                fontSize: 30,
+                                fontWeight: FontWeight.w700),
+                            textStyle: TextStyle(
+                                color: Colors.grey.withOpacity(0.3),
+                                fontSize: 23,
+                                fontWeight: FontWeight.w700),
                             onChanged: (value) {
                               setModalState(() {
                                 _currentValue = value;

@@ -5,6 +5,7 @@ import 'package:flutter_app2/anime/anime.dart';
 import 'package:flutter_app2/network/animeListRequests.dart';
 import 'package:flutter_app2/token/authentication.dart';
 import 'package:flutter_app2/token/loadStatus.dart';
+import 'package:flutter_app2/view/animeList/Utils.dart';
 import 'package:flutter_app2/view/animeList/animeUI.dart';
 import 'package:flutter_app2/view/animeList/pageErreur.dart';
 
@@ -33,8 +34,8 @@ class ViewAnimeListSeason extends StatefulWidget {
 class ViewAnimeListSeasonState extends State<ViewAnimeListSeason>
     with AutomaticKeepAliveClientMixin<ViewAnimeListSeason> {
   LoadStatus _loadStatus;
-  List<AnimeUI> animeList;
-  List<AnimeUI> displayAnimeList;
+  List<Anime> animeList = [];
+  List<Anime> displayAnimeList = [];
 
   @override
   void initState() {
@@ -46,15 +47,23 @@ class ViewAnimeListSeasonState extends State<ViewAnimeListSeason>
   manageList() {
     if (this.mounted) {
       setState(() {
-        displayAnimeList = animeList.where((string) {
+        print(">" + displayAnimeList.length.toString());
+        print(">" + displayAnimeList.length.toString());
+        displayAnimeList = animeList.where((anime) {
           if (widget._textController.value.text.isNotEmpty) {
-            return string.anime.title
-                .toLowerCase()
-                .contains(widget._textController.value.text.toLowerCase());
+            List<String> list = anime.getTitles();
+            for (String title in list) {
+              if (title
+                  .contains(widget._textController.value.text.toLowerCase())) {
+                return true;
+              }
+            }
+            return false;
           } else {
             return true;
           }
         }).toList();
+        print("<" + displayAnimeList.length.toString());
       });
     }
   }
@@ -64,18 +73,15 @@ class ViewAnimeListSeasonState extends State<ViewAnimeListSeason>
       _loadStatus = LoadStatus.loading;
     });
 
-    List<Anime> requestList = await AnimeRequest.chargerSaison(
+    animeList = await AnimeRequest.chargerSaison(
         Authentication.getSingleton().token, widget.year, widget.page);
 
-    if (requestList == null) {
+    if (animeList == null) {
+      animeList = [];
       setState(() {
         _loadStatus = LoadStatus.loadError;
       });
       return;
-    }
-    animeList = [];
-    for (Anime anime in requestList) {
-      animeList.add(AnimeUI(anime, false));
     }
 
     if (this.mounted) {
@@ -104,7 +110,10 @@ class ViewAnimeListSeasonState extends State<ViewAnimeListSeason>
                           3) /
                       (((MediaQuery.of(context).size.width - 10) / 3 * 1.41) +
                           25),
-                  children: displayAnimeList),
+                  children: List.generate(
+                      displayAnimeList.length,
+                      (index) =>
+                          AnimeUI(displayAnimeList.elementAt(index), false))),
       padding: EdgeInsets.symmetric(horizontal: 5),
     );
   }

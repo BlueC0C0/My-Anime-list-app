@@ -40,11 +40,16 @@ class _ViewAnimeListState extends State<ViewAnimeList>
     if (this.mounted) {
       setState(() {
         print(displayAnimeList.length);
-        displayAnimeList = animeList.where((string) {
+        displayAnimeList = animeList.where((anime) {
           if (widget._textController.value.text.isNotEmpty) {
-            return string.title
-                .toLowerCase()
-                .contains(widget._textController.value.text.toLowerCase());
+            List<String> list = anime.getTitles();
+            for (String title in list) {
+              if (title
+                  .contains(widget._textController.value.text.toLowerCase())) {
+                return true;
+              }
+            }
+            return false;
           } else {
             return true;
           }
@@ -57,10 +62,12 @@ class _ViewAnimeListState extends State<ViewAnimeList>
   Widget build(BuildContext context) {
     return Container(
       child: GridView.count(
+        physics: AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.fromLTRB(6, 2, 6, 150),
         controller: _scrollController,
         crossAxisCount: 3,
-        childAspectRatio: 10 / 14,
+        childAspectRatio: ((MediaQuery.of(context).size.width - 10) / 3) /
+            (((MediaQuery.of(context).size.width - 10) / 3 * 1.41) + 25),
         children: List.generate(displayAnimeList.length,
             (index) => AnimeUI(displayAnimeList.elementAt(index), false)),
       ),

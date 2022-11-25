@@ -1,0 +1,1 @@
+enum TitleVersion { ENGLISH, SYNONYMS, JAPANESE, DEFAULT }

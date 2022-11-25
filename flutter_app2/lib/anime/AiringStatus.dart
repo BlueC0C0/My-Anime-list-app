@@ -1,32 +1,37 @@
-enum AiringStatus { finished_airing, currently_airing, not_yet_aired, unknown }
+class AiringStatus {
+  final _value;
+  const AiringStatus._internal(this._value);
+  toString() => 'Enum.$_value';
 
-class AiringStatusUtil {
+  static const FINISHED_AIRING =
+      const AiringStatus._internal('finished_airing');
+  static const CURRENTLY_AIRING =
+      const AiringStatus._internal('currently_airing');
+  static const NOT_YET_AIRED = const AiringStatus._internal('not_yet_aired');
+  static const UNKNOWN = const AiringStatus._internal('unknown');
+
   static AiringStatus getFromFormatedString(String ch) {
     switch (ch) {
       case "finished_airing":
-        return AiringStatus.finished_airing;
+        return AiringStatus.FINISHED_AIRING;
       case "currently_airing":
-        return AiringStatus.currently_airing;
+        return AiringStatus.CURRENTLY_AIRING;
       case "not_yet_aired":
-        return AiringStatus.not_yet_aired;
-      case "unknown":
-        return AiringStatus.unknown;
+        return AiringStatus.NOT_YET_AIRED;
       default:
-        return AiringStatus.unknown;
+        return AiringStatus.UNKNOWN;
     }
   }
-}
 
-extension AiringStatusExtension on AiringStatus {
-  String get name {
+  String displayName() {
     switch (this) {
-      case AiringStatus.currently_airing:
+      case AiringStatus.CURRENTLY_AIRING:
         return "currently airing";
-      case AiringStatus.finished_airing:
+      case AiringStatus.FINISHED_AIRING:
         return "finished airing";
-      case AiringStatus.not_yet_aired:
+      case AiringStatus.NOT_YET_AIRED:
         return "not yet aired";
-      case AiringStatus.unknown:
+      case AiringStatus.UNKNOWN:
         return "unknown";
     }
   }

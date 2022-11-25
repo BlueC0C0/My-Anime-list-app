@@ -1,8 +1,10 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app2/anime/TitleVersion.dart';
 import 'package:flutter_app2/anime/anime.dart';
-import 'package:flutter_app2/view/animeList/detailPage.dart';
+import 'package:flutter_app2/view/animeList/Utils.dart';
+import 'package:flutter_app2/view/animeList/detailPage/detailPage.dart';
 
 class AnimeUI extends StatelessWidget {
   final Anime anime;
@@ -53,8 +55,9 @@ class AnimeUI extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.only(top: 2),
               child: Text(
-                anime.title,
+                anime.getTitle(Utils.getSingleton().getTitleVersion()),
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
                 style: AdaptiveTheme.of(context).theme.textTheme.headline5,
               ),
             ),

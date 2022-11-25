@@ -20,7 +20,9 @@ class _PageErreurState extends State<PageErreur> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        widget.func();
+        if (widget.func != null) {
+          widget.func();
+        }
       },
       child: Center(
         child: Text("erreur de chargement"),

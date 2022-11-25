@@ -1,45 +1,43 @@
 import 'dart:ui';
 
-enum Seasons{
-  winter,
-  spring,
-  summer,
-  fall,
-  none
-}
+class Seasons {
+  final _value;
+  const Seasons._internal(this._value);
+  toString() => 'Enum.$_value';
 
-extension SeasonsExtension on Seasons {
+  static const WINTER = const Seasons._internal('winter');
+  static const SPRING = const Seasons._internal('spring');
+  static const SUMMER = const Seasons._internal('summer');
+  static const FALL = const Seasons._internal('fall');
+  static const NONE = const Seasons._internal('none');
 
-  String get name {
-    switch(this) {
-      case Seasons.winter:
-        return "winter";
-      case Seasons.spring:
-        return "spring";
-      case Seasons.summer:
-        return "summer";
-      case Seasons.fall:
-        return "fall";
-      case Seasons.none:
-        return "unknow";
-    }
-  }
-}
-
-
-class SeasonsUtil {
   static Seasons getFromFormatedString(String ch) {
     switch (ch) {
       case "fall":
-        return Seasons.fall;
+        return Seasons.FALL;
       case "summer":
-        return Seasons.summer;
+        return Seasons.SUMMER;
       case "spring":
-        return Seasons.spring;
+        return Seasons.SPRING;
       case "winter":
-        return Seasons.winter;
+        return Seasons.WINTER;
       default:
-        return Seasons.none;
+        return Seasons.NONE;
+    }
+  }
+
+  String displayName() {
+    print(this._value);
+    if (this._value == Seasons.WINTER._value) {
+      return "winter";
+    } else if (this._value == Seasons.SPRING._value) {
+      return "spring";
+    } else if (this._value == Seasons.SUMMER._value) {
+      return "summer";
+    } else if (this._value == Seasons.FALL._value) {
+      return "fall";
+    } else {
+      return "unknown";
     }
   }
 }

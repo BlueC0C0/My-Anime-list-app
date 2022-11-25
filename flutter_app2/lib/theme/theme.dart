@@ -79,16 +79,16 @@ ThemeData lightTheme = ThemeData(
 
 ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
-  backgroundColor: Colors.black,
+  backgroundColor: Color.fromRGBO(14, 15, 21, 1),
   scaffoldBackgroundColor: Colors.black,
   appBarTheme: AppBarTheme(
-    backgroundColor: Color.fromRGBO(25, 25, 25, 1),
+    backgroundColor: Color.fromRGBO(14, 15, 21, 1),
   ),
   textTheme: TextTheme(
     headline1: GoogleFonts.rubik(
       color: Colors.white,
       fontWeight: FontWeight.w800,
-      fontSize: 35,
+      fontSize: 28,
     ),
     headline2: GoogleFonts.rubik(
       color: Colors.white,
@@ -107,7 +107,7 @@ ThemeData darkTheme = ThemeData(
     ),
     headline6: TextStyle(
       color: Colors.white,
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: FontWeight.w600,
     ),
     bodyText1: TextStyle(

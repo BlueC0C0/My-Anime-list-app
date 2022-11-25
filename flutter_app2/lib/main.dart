@@ -8,6 +8,7 @@ import 'package:flutter_app2/token/pageAuthentication.dart';
 import 'package:flutter_app2/view/animeList/pageAnimeList.dart';
 import 'package:flutter_app2/view/animeNews/pageNews.dart';
 import 'package:flutter_app2/view/animeSaison/pageAnimeSaison.dart';
+import 'package:flutter_app2/view/pageSettings/PageSettings.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
     return AdaptiveTheme(
       light: lightTheme,
       dark: darkTheme,
-      initial: AdaptiveThemeMode.system,
+      initial: AdaptiveThemeMode.light,
       builder: (theme, darkTheme) => MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'MAL client',
@@ -90,20 +91,22 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                     PageAnimeList(),
                     PageAnimeSaison(),
                     PageNews(),
+                    PageSettings(),
                   ],
                 ),
                 /*body: _widgetOptions.elementAt(_selectedIndex),*/
                 bottomNavigationBar: ClipRRect(
                   borderRadius: BorderRadius.vertical(
                       top: Radius.circular(
-                          MediaQuery.of(context).size.width / 25),
+                          MediaQuery.of(context).size.width / 40),
                       //pour avoir un border radius a peu pres responsive
                       bottom: Radius.circular(
-                          MediaQuery.of(context).size.width / 40)),
+                          MediaQuery.of(context).size.width / 50)),
                   child: BottomNavigationBar(
                     selectedFontSize: MediaQuery.of(context).size.width / 30,
                     unselectedFontSize: MediaQuery.of(context).size.width / 30,
-                    items: const <BottomNavigationBarItem>[
+                    backgroundColor: Color.fromRGBO(31, 78, 130, 1),
+                    items: <BottomNavigationBarItem>[
                       BottomNavigationBarItem(
                         icon: Icon(CustomIcons.applications),
                         label: 'My List',
@@ -116,6 +119,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         icon: Icon(CustomIcons.search),
                         label: 'Search',
                       ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.settings),
+                        label: 'Settings',
+                      ),
                     ],
                     currentIndex: _selectedIndex,
                     showUnselectedLabels: false,
@@ -124,6 +131,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       print("changement de page");
                       _onItemTapped(int);
                     },
+                    
                   ),
                 ),
               );

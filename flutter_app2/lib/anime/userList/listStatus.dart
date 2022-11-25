@@ -25,6 +25,8 @@ extension ListStatusExtension on ListStatus {
         return "planned";
       case ListStatus.watching:
         return "watching";
+      case ListStatus.none:
+        return "not in list";
     }
   }
 
@@ -40,6 +42,8 @@ extension ListStatusExtension on ListStatus {
         return Color.fromRGBO(85, 85, 85, 1);
       case ListStatus.watching:
         return Color.fromRGBO(20, 92, 19, 1);
+      case ListStatus.none:
+        return Color.fromARGB(255, 44, 44, 44);
     }
   }
 
@@ -57,6 +61,8 @@ extension ListStatusExtension on ListStatus {
         return "plan_to_watch";
       case ListStatus.watching:
         return "watching";
+      case ListStatus.none:
+        return "none";
     }
   }
 }

@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter_app2/anime/User.dart';
 import 'package:flutter_app2/anime/anime.dart';
 import 'package:flutter_app2/token/loadStatus.dart';
 import 'package:flutter_app2/anime/userList/listStatus.dart';
@@ -8,7 +9,8 @@ import 'package:flutter_app2/icons/custom_icons_icons.dart';
 import 'package:flutter_app2/network/animeListRequests.dart';
 import 'package:flutter_app2/token/authentication.dart';
 import 'package:flutter_app2/view/animeList/pageErreur.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_picker/flutter_picker.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'ViewAnimeList.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +37,9 @@ class _PageAnimeListState extends State<PageAnimeList>
   LoadStatus _status = LoadStatus.loading;
 
   bool onSearch = false;
+  User user = User("RomainC", "@me",
+      "https://cdn.myanimelist.net/images/userimages/8485110.jpg?t=1647778200");
+  List<User> friends = [];
 
   @override
   void initState() {
@@ -45,6 +50,18 @@ class _PageAnimeListState extends State<PageAnimeList>
         print(_selectedIndex);
       });
     });
+    AnimeRequest.chargerFriends(Authentication.getSingleton().token)
+        .then((value) {
+      //friends.add(user);
+      friends.add(user);
+      friends.addAll(value);
+
+      for (User user in friends) {
+        print(user.displayName + " " + user.urlName + " " + user.urlImage);
+      }
+
+      print(friends);
+    });
 
     chargerAnimeList();
 
@@ -52,8 +69,13 @@ class _PageAnimeListState extends State<PageAnimeList>
   }
 
   chargerAnimeList() async {
+    print("on charge la liste pour : " + user.displayName);
+    setState(() {
+      _status = LoadStatus.loading;
+    });
+
     animeList = await AnimeRequest.chargerList(
-        Authentication.getSingleton().token, ListStatus.all);
+        Authentication.getSingleton().token, ListStatus.all, user.urlName);
     setState(() {
       if (animeList == null) {
         _status = LoadStatus.loadError;
@@ -84,47 +106,59 @@ class _PageAnimeListState extends State<PageAnimeList>
         automaticallyImplyLeading: false,
         // hides leading widget
         title: onSearch
-            ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    autofocus: true,
-                    autocorrect: false,
-                    cursorWidth: 3,
-                    style: TextStyle(fontSize: 20),
-                    decoration: InputDecoration(
-                      contentPadding:
-                          EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                      fillColor: Colors.grey.withOpacity(0.1),
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      autofocus: true,
+                      autocorrect: false,
+                      cursorWidth: 3,
+                      style: TextStyle(fontSize: 20),
+                      decoration: InputDecoration(
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                        fillColor: Colors.grey.withOpacity(0.1),
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: 5),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      _textController.clear();
-                      onSearch = false;
-                    });
-                  },
-                  child: Icon(
-                    Icons.clear,
-                    size: 35,
-                    color: AdaptiveTheme.of(context).theme.hintColor,
+                  SizedBox(width: 5),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        _textController.clear();
+                        onSearch = false;
+                      });
+                    },
+                    child: Icon(
+                      Icons.clear,
+                      size: 35,
+                      color: AdaptiveTheme.of(context).theme.hintColor,
+                    ),
                   ),
-                )
-              ])
+                ],
+              )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("My List",
-                      style:
-                          AdaptiveTheme.of(context).theme.textTheme.headline1),
+                  Column(children: [
+                    InkWell(
+                      onTap: () {
+                        showPickerArray(context);
+                      },
+                      child: Text(
+                        user.urlName == "@me" ? "My list" : "friend's List",
+                        style:
+                            AdaptiveTheme.of(context).theme.textTheme.headline1,
+                      ),
+                    ),
+                  ]),
                   InkWell(
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
@@ -135,6 +169,9 @@ class _PageAnimeListState extends State<PageAnimeList>
                     ),
                     onTap: () {
                       setState(() {
+                        AdaptiveTheme.of(context).toggleThemeMode();
+                        print("maintenant : " +
+                            AdaptiveTheme.of(context).mode.name);
                         _textController.clear();
                         onSearch = true;
                       });
@@ -265,22 +302,91 @@ class _PageAnimeListState extends State<PageAnimeList>
               ? PageErreur(null)
               : TabBarView(
                   controller: _tabController,
-                  dragStartBehavior: DragStartBehavior.start,
                   children: [
-                    ViewAnimeList(ListStatus.all, animeList, _textController),
-                    ViewAnimeList(
-                        ListStatus.watching, animeList, _textController),
-                    ViewAnimeList(
-                        ListStatus.completed, animeList, _textController),
-                    ViewAnimeList(
-                        ListStatus.paused, animeList, _textController),
-                    ViewAnimeList(
-                        ListStatus.dropped, animeList, _textController),
-                    ViewAnimeList(
-                        ListStatus.plan_to_watch, animeList, _textController),
+                    RefreshIndicator(
+                        child: ViewAnimeList(
+                            ListStatus.all, animeList, _textController),
+                        onRefresh: () => chargerAnimeList()),
+                    RefreshIndicator(
+                        child: ViewAnimeList(
+                            ListStatus.watching, animeList, _textController),
+                        onRefresh: () => chargerAnimeList()),
+                    RefreshIndicator(
+                        child: ViewAnimeList(
+                            ListStatus.completed, animeList, _textController),
+                        onRefresh: () => chargerAnimeList()),
+                    RefreshIndicator(
+                        child: ViewAnimeList(
+                            ListStatus.paused, animeList, _textController),
+                        onRefresh: () => chargerAnimeList()),
+                    RefreshIndicator(
+                        child: ViewAnimeList(
+                            ListStatus.dropped, animeList, _textController),
+                        onRefresh: () => chargerAnimeList()),
+                    RefreshIndicator(
+                        child: ViewAnimeList(ListStatus.plan_to_watch,
+                            animeList, _textController),
+                        onRefresh: () => chargerAnimeList()),
                   ],
                 ),
     );
+  }
+
+  String _currentValue;
+  showPickerArray(BuildContext context) {
+    showMaterialModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(title: Text("Choose the list")),
+            body: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(6, 2, 6, 150),
+              child: Column(
+                children: List.generate(
+                  friends.length,
+                  (index) => InkWell(
+                    onTap: () {
+                      setState(() {
+                        user = friends.elementAt(index);
+                        chargerAnimeList();
+                        Navigator.of(context).pop();
+                      });
+                    },
+                    child: Container(
+                      margin: EdgeInsets.all(5),
+                      decoration: BoxDecoration(),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                  friends.elementAt(index).urlImage,
+                                  fit: BoxFit.cover),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: Text(
+                                friends.elementAt(index).displayName,
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   @override
